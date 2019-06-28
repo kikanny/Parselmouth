@@ -4,6 +4,8 @@ import parselmouth
 
 import sys
 
+from builtins import str  # Python 2 compatibility
+
 
 def test_create(text_grid_path):
 	assert parselmouth.TextGrid(0.0, 1.0) == parselmouth.TextGrid(0.0, 1.0, [], [])
@@ -20,7 +22,7 @@ def test_tgt(text_grid_path):
 	tgt = pytest.importorskip('tgt')
 
 	text_grid = parselmouth.read(text_grid_path)  # TODO Replace with TextGrid constructor taking filename?
-	assert '\n'.join(map(str, text_grid.to_tgt().tiers)) == '\n'.join(map(str, tgt.read_textgrid(text_grid_path, 'utf-8', include_empty_intervals=True).tiers))
+	assert str('\n').join(map(str, text_grid.to_tgt().tiers)) == str('\n').join(map(str, tgt.read_textgrid(text_grid_path, 'utf-8', include_empty_intervals=True).tiers))
 	assert parselmouth.TextGrid.from_tgt(text_grid.to_tgt()) == text_grid
 
 
@@ -41,7 +43,7 @@ def test_tgt_exceptions(text_grid_path, monkeypatch):
 			pass
 	monkeypatch.setattr(tgt, "TextGrid", MockTextGrid)
 
-	with pytest.raises(AttributeError, match=r"'MockTextGrid' object has no attribute '.*'"):
+	with pytest.raises(AttributeError, match=r"'MockTextGrid' object has no attribute '.*'|MockTextGrid instance has no attribute '.*'"):  # Python 2 compatibility
 		parselmouth.read(text_grid_path).to_tgt()
-	with pytest.raises(AttributeError, match=r"'MockTextGrid' object has no attribute '.*'"):
+	with pytest.raises(AttributeError, match=r"'MockTextGrid' object has no attribute '.*'|MockTextGrid instance has no attribute '.*'"):  # Python 2 compatibility
 		parselmouth.TextGrid.from_tgt(MockTextGrid())
